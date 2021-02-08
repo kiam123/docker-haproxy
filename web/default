@@ -1,12 +1,15 @@
-upstream test {
-    server 172.18.0.4 weight=6;
-    server 172.18.0.5 weight=4;
-}
-
 server {
-    listen 80;
-    server_name 172.18.0.3;  #container ip
-    location / {
-        proxy_pass http://test;
-    }
+	listen 80 default_server;
+	listen [::]:80 default_server;
+
+	root /var/www/html;
+
+	index index.html index.htm index.nginx-debian.html;
+
+	server_name _;
+
+	location / {
+        add_header Cache-Control "no-store";
+		try_files $uri $uri/ =404;
+	}
 }

@@ -11,7 +11,7 @@ docker build -t nginx_web .
 cd ..
 
 docker run -d \
-    -p 8880 -p 8022:22 -p 9000:9000 \
+    -p 8880:80 -p 8022:22 -p 9000:9000 \
     --name haproxy \
     --privileged \
     --net test-network \

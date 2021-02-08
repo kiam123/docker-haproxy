@@ -6,11 +6,13 @@ RUN apt-get -qqy update \
     nginx \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+
+COPY default /etc/nginx/sites-enabled/
+
 #======================================
 # Add Node web
 #======================================
 COPY index.nginx-debian1 index.nginx-debian2 /
-
 
 #======================================
 # Add script
