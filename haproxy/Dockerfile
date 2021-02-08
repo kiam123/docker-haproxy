@@ -1,15 +1,26 @@
-FROM nginx_base
+FROM server_base
+
+
+RUN apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install \
+    haproxy \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
+
+#======================================
+# Add haproxy configuration file
+#======================================
+COPY haproxy.cfg /etc/haproxy/
 
 
 #======================================
 # Add script
 #======================================
-COPY start_nginx.sh start_keepalive.sh nginx_check.sh /opt/bin/
+COPY start_haproxy.sh /opt/bin/
 
 #======================================
 # Add Supervisor configuration file
 #======================================
-COPY nginx_service.conf keepalive_service.conf /etc/supervisor/conf.d/
+COPY haproxy_service.conf /etc/supervisor/conf.d/
 
 
 #======================================
@@ -22,3 +33,4 @@ COPY default /etc/nginx/sites-enabled
 #======================================
 COPY keepalived.conf /etc/keepalived/
 
+EXPOSE 9000

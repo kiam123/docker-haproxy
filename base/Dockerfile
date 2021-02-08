@@ -1,6 +1,7 @@
 FROM ubuntu:bionic-20191029
 
 ARG web_port=80
+ARG ssh_port=22
 ARG time_zone="Asia/Taipei"
 ARG pwd="123123"
 
@@ -36,7 +37,6 @@ RUN apt-get -qqy update \
     iputils-ping \
     net-tools \
     psmisc \
-    haproxy \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 #===================
@@ -60,13 +60,13 @@ ENV HOME=/home/test
 #=======================================
 # Create shared / common bin directory
 #=======================================
-RUN  mkdir -p /opt/bin 
+RUN mkdir -p /opt/bin 
 
 
 #======================================
 # Add script
 #======================================
-COPY entry_point.sh /opt/bin/
+COPY entry_point.sh start_ssh.sh /opt/bin/
 RUN chmod +x /opt/bin/entry_point.sh
 
 #======================================
@@ -86,11 +86,14 @@ RUN sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin  yes /' /etc/ss
 # SSH login fix. Otherwise user is kicked off after login
 RUN sed 's@session\s*required\s*pam_loginuid.so@session optional pam_loginuid.so@g' -i /etc/pam.d/sshd
 
+# SSH change port
+RUN sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
+
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
 
-RUN  mkdir -p /var/run/supervisor /var/log/supervisor \
+RUN mkdir -p /var/run/supervisor /var/log/supervisor \
   && chmod -R 777 /var/run/supervisor /var/log/supervisor /etc/passwd \
   && chgrp -R 0 /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /var/run/supervisor /var/log/supervisor
@@ -101,6 +104,7 @@ RUN  mkdir -p /var/run/supervisor /var/log/supervisor \
 
 
 EXPOSE ${web_port}
+EXPOSE ${ssh_port}
 
 
 CMD ["/opt/bin/entry_point.sh"]

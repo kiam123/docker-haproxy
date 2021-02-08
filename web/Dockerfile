@@ -1,21 +1,24 @@
-FROM nginx_base
+FROM server_base
 
 
-#======================================
-# Add Node web
-#======================================
-COPY index.nginx-debian1 index.nginx-debian2 /
+RUN apt-get -qqy update \
+  && apt-get -qqy --no-install-recommends install \
+    nginx \
+  && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
 
 #======================================
 # Add script
 #======================================
-COPY start_nginx.sh genera_web.sh /opt/bin/
-RUN chmod +x /opt/bin/genera_web.sh
+COPY start_nginx.sh /opt/bin/
 
 #======================================
 # Add Supervisor configuration file
 #======================================
-COPY nginx_service.conf genera_service.conf /etc/supervisor/conf.d/
+COPY nginx_service.conf /etc/supervisor/conf.d/
 
-ENV name=Node1
+
+#======================================
+# Add nginx configuration
+#======================================
+COPY default /etc/nginx/sites-enabled
