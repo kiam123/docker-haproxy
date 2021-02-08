@@ -1,6 +1,5 @@
 FROM ubuntu:bionic-20191029
 
-ARG web_port=80
 ARG ssh_port=22
 ARG time_zone="Asia/Taipei"
 ARG pwd="123123"
@@ -103,7 +102,6 @@ RUN mkdir -p /var/run/supervisor /var/log/supervisor \
 # ===================================================
 
 
-EXPOSE ${web_port}
 EXPOSE ${ssh_port}
 
 

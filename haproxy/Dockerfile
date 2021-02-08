@@ -1,5 +1,7 @@
 FROM server_base
 
+ARG web_port=80
+ARG stats_port=9000
 
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
@@ -23,14 +25,6 @@ COPY start_haproxy.sh /opt/bin/
 COPY haproxy_service.conf /etc/supervisor/conf.d/
 
 
-#======================================
-# Add nginx configuration
-#======================================
-COPY default /etc/nginx/sites-enabled
 
-#======================================
-# Add keepalived configuration
-#======================================
-COPY keepalived.conf /etc/keepalived/
-
-EXPOSE 9000
+EXPOSE ${web_port}
+EXPOSE ${stats_port}
