@@ -1,27 +1,25 @@
 FROM server_base
 
-ARG web_port=80
-ARG stats_port=9000
-
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
-    haproxy \
+    nginx \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
+COPY default /etc/nginx/sites-enabled/
+COPY ./forum /var/www/html/
+
 #======================================
-# Add haproxy configuration file
+# Add Node web
 #======================================
-COPY haproxy.cfg /etc/haproxy/
+COPY index.nginx-debian1 index.nginx-debian2 /
 
 #======================================
 # Add script
 #======================================
-COPY start_haproxy.sh /opt/bin/
+COPY start_nginx.sh genera_web.sh /opt/bin/
+RUN chmod +x /opt/bin/genera_web.sh
 
 #======================================
 # Add Supervisor configuration file
 #======================================
-COPY haproxy_service.conf /etc/supervisor/conf.d/
-
-EXPOSE ${web_port}
-EXPOSE ${stats_port}
+COPY nginx_service.conf genera_service.conf /etc/supervisor/conf.d/

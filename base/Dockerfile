@@ -2,6 +2,7 @@ FROM ubuntu:bionic-20191029
 
 ARG ssh_port=22
 ARG time_zone="Asia/Taipei"
+ARG user="test"
 ARG pwd="123123"
 
 #================================================
@@ -49,18 +50,17 @@ RUN echo "${TZ}" > /etc/timezone \
 #========================================
 # Add normal user with passwordless sudo
 #========================================
-RUN useradd -ou 0 -g 0 test \
+RUN useradd -ou 0 -g 0 ${user} \
          --shell /bin/bash  \
          --create-home \
   && echo 'ALL ALL = (ALL) NOPASSWD: ALL' >> /etc/sudoers \
-  && echo "test:$pwd" | chpasswd
-ENV HOME=/home/test
+  && echo "$user:$pwd" | chpasswd
+ENV HOME=/home/${user}
 
 #=======================================
 # Create shared / common bin directory
 #=======================================
 RUN mkdir -p /opt/bin 
-
 
 #======================================
 # Add script
@@ -73,8 +73,6 @@ RUN chmod +x /opt/bin/entry_point.sh
 #======================================
 COPY supervisord.conf /etc
 COPY ssh_service.conf /etc/supervisor/conf.d/
-
-
 
 #======================================
 # Setup ssh login
@@ -91,18 +89,10 @@ RUN sed -i "s/#Port 22/Port $ssh_port/" /etc/ssh/sshd_config
 ENV NOTVISIBLE "in users profile"
 RUN echo "export VISIBLE=now" >> /etc/profile
 
-
 RUN mkdir -p /var/run/supervisor /var/log/supervisor \
   && chmod -R 777 /var/run/supervisor /var/log/supervisor /etc/passwd \
   && chgrp -R 0 /var/run/supervisor /var/log/supervisor \
   && chmod -R g=u /var/run/supervisor /var/log/supervisor
 
-# ===================================================
-# Run the following commands as non-privileged user
-# ===================================================
-
-
 EXPOSE ${ssh_port}
-
-
 CMD ["/opt/bin/entry_point.sh"]

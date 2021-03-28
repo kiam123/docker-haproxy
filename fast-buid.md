@@ -32,3 +32,26 @@ docker run -d \
     --net test-network \
     -e "name=WEB2" \
     nginx_web
+
+
+
+
+## DB with WordPress
+docker run --name mariadb \
+    -v /home/selab-server/docker/mariadb-test/datadir:/var/lib/mysql \
+    -p 13306:3306 \
+    -e MYSQL_ROOT_PASSWORD=test \
+    --net test-network \
+    -d mariadb
+
+
+docker run --name wordpress -p 8888:80 \
+    -e WORDPRESS_DB_HOST=172.18.0.2:3306 \
+    -e WORDPRESS_DB_USER=root \
+    -e WORDPRESS_DB_PASSWORD=test \
+    -e WORDPRESS_DB_NAME=wordpress \
+    --net test-network \
+    -d wordpress
+
+docker rm -f mariadb wordpress && sudo rm -rf ~/docker/mariadb-test/datadir/*
+

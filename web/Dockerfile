@@ -1,13 +1,12 @@
 FROM server_base
 
-
 RUN apt-get -qqy update \
   && apt-get -qqy --no-install-recommends install \
     nginx \
   && rm -rf /var/lib/apt/lists/* /var/cache/apt/*
 
-
 COPY default /etc/nginx/sites-enabled/
+COPY ./sideex-platform ~/
 
 #======================================
 # Add Node web
